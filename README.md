@@ -36,6 +36,7 @@ A comprehensive parking management solution built with a MySQL database and a St
 ---
 
 ## 📂 Project Structure
+```bash
 smart-parking-project/
 ├── .streamlit/
 │   └── secrets.toml        
@@ -43,6 +44,7 @@ smart-parking-project/
 ├── smart_parking_logic.sql 
 ├── requirements.txt        
 └── README.md
+```
 ---
 
 ## 🔧 Setup and Installation
