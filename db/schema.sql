@@ -1,0 +1,99 @@
+CREATE DATABASE smart_parking_final;
+USE smart_parking_final;
+CREATE TABLE USERS (
+    USER_ID VARCHAR(10) PRIMARY KEY,
+    FIRST_NAME VARCHAR(50) NOT NULL,
+    LAST_NAME VARCHAR(50) NOT NULL,
+    EMAIL VARCHAR(100) UNIQUE NOT NULL,
+    PHONE_NUM VARCHAR(15) UNIQUE NOT NULL,
+    VEHICLE_NO VARCHAR(15) UNIQUE NOT NULL,
+    USER_TYPE ENUM('Student', 'Faculty', 'Staff') NOT NULL
+) ENGINE=InnoDB;
+desc users;
+CREATE TABLE PARKING_SPACE (
+    SPACE_ID VARCHAR(10) PRIMARY KEY,
+    LOCATION VARCHAR(50) NOT NULL,
+    STATUS ENUM('Available', 'Occupied') DEFAULT 'Available',
+    PRIORITY INT DEFAULT 0
+) ENGINE=InnoDB;
+desc parking_space;
+CREATE TABLE RESERVATION (
+    RES_ID VARCHAR(10) PRIMARY KEY,
+    USER_ID VARCHAR(10),
+    SPACE_ID VARCHAR(10),
+    START_TIME DATETIME NOT NULL,
+    END_TIME DATETIME NOT NULL,
+    STATUS ENUM('Booked', 'Completed', 'Cancelled') DEFAULT 'Booked',
+    FOREIGN KEY (USER_ID) REFERENCES USERS(USER_ID) ON DELETE CASCADE,
+    FOREIGN KEY (SPACE_ID) REFERENCES PARKING_SPACE(SPACE_ID) ON DELETE CASCADE
+) ENGINE=InnoDB;
+desc reservation;
+CREATE TABLE PAYMENT (
+    PAYMENT_ID VARCHAR(10) PRIMARY KEY,
+    RES_ID VARCHAR(10),
+    AMOUNT DECIMAL(10,2) NOT NULL,
+    TIME_STAMP DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PAYMENT_STATUS ENUM('Pending', 'Completed', 'Failed') DEFAULT 'Pending',
+    FOREIGN KEY (RES_ID) REFERENCES RESERVATION(RES_ID) ON DELETE CASCADE
+) ENGINE=InnoDB;
+desc payment;
+CREATE TABLE OCCUPANCY_LOG (
+    LOG_ID VARCHAR(10) PRIMARY KEY,
+    USER_ID VARCHAR(10),
+    SPACE_ID VARCHAR(10),
+    ENTRY_TIME DATETIME NOT NULL,
+    EXIT_TIME DATETIME,
+    DURATION TIME GENERATED ALWAYS AS (TIMEDIFF(EXIT_TIME, ENTRY_TIME)) STORED,
+    FOREIGN KEY (USER_ID) REFERENCES USERS(USER_ID) ON DELETE CASCADE,
+    FOREIGN KEY (SPACE_ID) REFERENCES PARKING_SPACE(SPACE_ID) ON DELETE CASCADE
+) ENGINE=InnoDB;
+desc occupancy_log;
+
+-- DML Statements --
+INSERT INTO USERS (USER_ID, FIRST_NAME, LAST_NAME, EMAIL, PHONE_NUM, VEHICLE_NO, USER_TYPE)
+VALUES
+('CS001', 'Aarav', 'Sharma', 'aarav.sharma@college.edu', '9876543210', 'KA05AB1234', 'Student'),
+('EC001', 'Diya', 'Patel', 'diya.patel@college.edu', '9123456780', 'KA05CD5678', 'Student'),
+('F001', 'Ravi', 'Kumar', 'ravi.kumar@college.edu', '9988776655', 'KA03EF9012', 'Faculty'),
+('S001', 'Meera', 'Nair', 'meera.nair@college.edu', '9001122334', 'KA01GH3456', 'Staff'),
+('AM001', 'Sanjay', 'Verma', 'sanjay.verma@college.edu', '9090909090', 'KA02IJ7890', 'Student'),
+('CS002', 'Abhi', 'Rao', 'abhirao@college.edu', '9090909091', 'KA02IJ7891', 'Student');
+select * from users;
+INSERT INTO PARKING_SPACE (SPACE_ID, LOCATION, STATUS, PRIORITY)
+VALUES
+('P001', 'Block A - Ground Floor', 'Available', 1),
+('P002', 'Block A - Basement', 'Occupied', 2),
+('P003', 'Block B - Near Canteen', 'Available', 3),
+('P004', 'Block C - Staff Area', 'Occupied', 1),
+('P005', 'Main Gate - Visitor Zone', 'Available', 4),
+('P006', 'Block B - Near Canteen', 'Available', 2);
+select * from parking_space;
+INSERT INTO RESERVATION (RES_ID, USER_ID, SPACE_ID, START_TIME, END_TIME, STATUS)
+VALUES
+('R001', 'CS001', 'P001', '2025-10-26 08:00:00', '2025-10-26 12:00:00', 'Completed'),
+('R002', 'EC001', 'P002', '2025-10-26 09:00:00', '2025-10-26 11:30:00', 'Booked'),
+('R003', 'F001', 'P004', '2025-10-26 07:45:00', '2025-10-26 15:00:00', 'Completed'),
+('R004', 'S001', 'P005', '2025-10-26 10:00:00', '2025-10-26 13:00:00', 'Cancelled'),
+('R005', 'AM001', 'P003', '2025-10-26 11:00:00', '2025-10-26 14:00:00', 'Booked');
+select * from reservation;
+INSERT INTO PAYMENT (PAYMENT_ID, RES_ID, AMOUNT, PAYMENT_STATUS)
+VALUES
+('PAY001', 'R001', 80.00, 'Completed'),
+('PAY002', 'R002', 60.00, 'Pending'),
+('PAY003', 'R003', 100.00, 'Completed'),
+('PAY004', 'R004', 0.00, 'Failed'),
+('PAY005', 'R005', 70.00, 'Pending');
+select * from payment;
+INSERT INTO OCCUPANCY_LOG (LOG_ID, USER_ID, SPACE_ID, ENTRY_TIME, EXIT_TIME)
+VALUES
+('L001', 'CS001', 'P001', '2025-10-26 08:05:00', '2025-10-26 11:55:00'),
+('L002', 'EC001', 'P002', '2025-10-26 09:10:00', NULL),
+('L003', 'F001', 'P004', '2025-10-26 07:50:00', '2025-10-26 14:50:00'),
+('L004', 'S001', 'P005', '2025-10-26 10:05:00', '2025-10-26 10:20:00'),
+('L005', 'AM001', 'P003', '2025-10-26 11:10:00', NULL);
+select * from occupancy_log;
+
+
+ALTER TABLE USERS
+ADD COLUMN STATUS ENUM('Active', 'Inactive') NOT NULL DEFAULT 'Active'
+AFTER USER_TYPE;
