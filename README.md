@@ -40,10 +40,14 @@ A comprehensive parking management solution built with a MySQL database and a St
 smart-parking-project/
 ├── .streamlit/
 │   └── secrets.toml        
-├── app.py                  
-├── smart_parking_logic.sql 
-├── requirements.txt        
-└── README.md
+├── db/
+│   ├── schema.sql            
+│   └── smart_parking_logic.sql 
+├── app.py                 
+├── er_diagram.png         
+├── requirements.txt       
+└── README.md              
+
 ```
 ---
 
